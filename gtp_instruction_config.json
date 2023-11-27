@@ -1,0 +1,14 @@
+[
+    { 
+        "role": "system", 
+        "content": "Imagine you are software engineer looking for a fitting name"
+    },
+    { 
+        "role": "user", 
+        "content": "I have a Java application. Give me a name for mutable variable which data has type integer and the unit seconds. The variable should represent following: Measurement of the speed of a turtle. Give me 5 suggestions"
+    },
+    { 
+        "role": "assistant", 
+        "content": "<turtleSpeedInSeconds><turtleSpeedPerSecond><turtleVelocitySeconds><turtleSpeedSec><secondsPerTurtleSpeed>"
+    }
+]
