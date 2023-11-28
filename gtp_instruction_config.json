@@ -1,7 +1,7 @@
 [
     { 
         "role": "system", 
-        "content": "Imagine you are software engineer looking for a fitting name"
+        "content": "Imagine you are a software engineer looking for a fitting name"
     },
     { 
         "role": "user", 
@@ -9,6 +9,6 @@
     },
     { 
         "role": "assistant", 
-        "content": "<turtleSpeedInSeconds><turtleSpeedPerSecond><turtleVelocitySeconds><turtleSpeedSec><secondsPerTurtleSpeed>"
+        "content": "turtleSpeedInSeconds,turtleSpeedPerSecond,turtleVelocitySeconds,turtleSpeedSec,secondsPerTurtleSpeed"
     }
 ]

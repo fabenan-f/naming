@@ -5,24 +5,24 @@ import (
 	"strings"
 )
 
-type UserInput struct {
+type input struct {
 	language         string
 	mutable          bool
-	construct        string
+	symbol           string
 	dataType         string
 	unit             string
 	description      string
 	numOfSuggestions int
 }
 
-func (input *UserInput) buildInstruction() string {
+func (input *input) transformToInstruction() string {
 	var builder strings.Builder
 
 	fmt.Fprintf(&builder, "I have a %s application. Give me a name for a ", input.language)
 	if input.mutable {
 		builder.WriteString("mutable ")
 	}
-	builder.WriteString(input.construct)
+	builder.WriteString(input.symbol)
 
 	if input.dataType != "" || input.unit != "" {
 		fmt.Fprint(&builder, " which")
@@ -40,8 +40,8 @@ func (input *UserInput) buildInstruction() string {
 		fmt.Fprintf(&builder, " the unit %s", input.unit)
 	}
 
-	fmt.Fprintf(&builder, ". The variable should represent following: %s. Give me %v suggestions",
-		input.description, input.numOfSuggestions)
+	fmt.Fprintf(&builder, ". The %s should represent following: %s. Give me %v suggestions",
+		input.symbol, input.description, input.numOfSuggestions)
 
 	return builder.String()
 }
