@@ -1,59 +1,89 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
+	openai "github.com/sashabaranov/go-openai"
 	"github.com/urfave/cli/v2"
 )
 
-const FILENAME string = "gtp_instruction_config.json"
+const (
+	FILENAME = "gtp_instruction_config.json"
+)
 
 func main() {
-	//preparedMessages := LoadConfiguration(FILENAME)
-	var userInput UserInput
+	preparedMessages := ParseConfiguration(FILENAME)
+	var input input
 
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:        "-l",
+				Name:        "lang",
+				Aliases:     []string{"l"},
 				Usage:       "programming language",
-				Destination: &userInput.language,
+				Destination: &input.language,
+				Required:    true,
 			},
 			&cli.BoolFlag{
-				Name:        "-m",
-				Usage:       "mutable/immutable",
-				Destination: &userInput.mutable,
+				Name:        "mutable",
+				Aliases:     []string{"m"},
+				Usage:       "mutable",
+				Destination: &input.mutable,
 			},
 			&cli.StringFlag{
-				Name:        "-c",
-				Usage:       "construct",
-				Destination: &userInput.construct,
+				Name:        "symbol",
+				Aliases:     []string{"s"},
+				Usage:       "identifier for variable, function, class etc. names",
+				Destination: &input.symbol,
+				Required:    true,
 			},
 			&cli.StringFlag{
-				Name:        "-t",
+				Name:        "type",
+				Aliases:     []string{"t"},
 				Usage:       "data type",
-				Destination: &userInput.dataType,
+				Destination: &input.dataType,
 			},
 			&cli.StringFlag{
-				Name:        "-u",
+				Name:        "unit",
+				Aliases:     []string{"u"},
 				Usage:       "unit",
-				Destination: &userInput.unit,
+				Destination: &input.unit,
 			},
 			&cli.StringFlag{
-				Name:        "-d",
+				Name:        "description",
+				Aliases:     []string{"d"},
 				Usage:       "description",
-				Destination: &userInput.description,
+				Destination: &input.description,
+				Required:    true,
 			},
 			&cli.IntFlag{
-				Name:        "-n",
+				Name:        "num",
+				Aliases:     []string{"n"},
 				Usage:       "number of suggestions",
-				Destination: &userInput.numOfSuggestions,
+				Destination: &input.numOfSuggestions,
+				Required:    true,
 			},
 		},
 		Name:  "naming",
-		Usage: "give address pointers a senseful name",
+		Usage: "give symbols a meaningful name and make thereby your code more maintainable",
 		Action: func(*cli.Context) error {
+			instruction := input.transformToInstruction()
+			message := openai.ChatCompletionMessage{
+				Role:    "user",
+				Content: instruction,
+			}
+			preparedMessages = append(preparedMessages, message)
+			response, err := askGtpForName(preparedMessages)
+			if err != nil {
+				log.Fatal(err)
+			}
+			parsedResponse, err := ParseResponse(response, input.numOfSuggestions)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(parsedResponse)
 			return nil
 		},
 	}
