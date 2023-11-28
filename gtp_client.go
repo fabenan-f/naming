@@ -16,22 +16,21 @@ var client = openai.NewClient(apiKey)
 func getApiKey() string {
 	err := godotenvvault.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Print("Error loading .env file")
 	}
-	return os.Getenv("OPENAI_API_KEY")
+	api_key := os.Getenv("OPENAI_API_KEY")
+	if api_key == "" {
+		log.Fatal("OPENAI_API_KEY is not exported")
+	}
+	return api_key
 }
 
-func askGtpForName(request string) (string, error) {
+func askGtpForName(messages []openai.ChatCompletionMessage) (string, error) {
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: request,
-				},
-			},
+			Model:    openai.GPT3Dot5Turbo,
+			Messages: messages,
 		},
 	)
 
