@@ -1,11 +1,11 @@
-package main
+package naming
 
 import (
 	"fmt"
 	"testing"
 )
 
-func TestLoadConfiguration(t *testing.T) {
+func TestParseConfiguration(t *testing.T) {
 	input := "gtp_instruction_config.json"
 
 	want := "Imagine you are a software engineer looking for a fitting name"
@@ -19,8 +19,8 @@ func TestParseResponse(t *testing.T) {
 	inputResponse := "turtleSpeedInSeconds,turtleSpeedPerSecond"
 	inputNumOfSuggestions := 2
 
-	want := "\x1b[37m1. \x1b[32mturtleSpeedInSeconds\n\x1b[37m2. \x1b[32mturtleSpeedPerSecond\n"
-	got, _ := ParseResponse(inputResponse, inputNumOfSuggestions)
+	want := "\n\x1b[37m1. \x1b[32mturtleSpeedInSeconds\n\x1b[37m2. \x1b[32mturtleSpeedPerSecond\n"
+	got, _ := parseResponse(inputResponse, inputNumOfSuggestions)
 
 	if got != want {
 		t.Fatalf(`ParseResponse(%q, %v)=%q is not %q`, inputResponse, inputNumOfSuggestions, got, want)
@@ -33,7 +33,7 @@ func TestParseResponseError(t *testing.T) {
 	inputResponse := "I need more details to give an answer."
 	inputNumOfSuggestions := 2
 
-	_, err := ParseResponse(inputResponse, inputNumOfSuggestions)
+	_, err := parseResponse(inputResponse, inputNumOfSuggestions)
 
 	if err == nil {
 		t.Fatalf(`Expected an error message for gtp response: %s`, inputResponse)

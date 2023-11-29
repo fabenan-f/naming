@@ -1,4 +1,4 @@
-package main
+package naming
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ func ParseConfiguration(file string) []openai.ChatCompletionMessage {
 	return prepareMessages
 }
 
-func ParseResponse(response string, numOfSuggestions int) (string, error) {
+func parseResponse(response string, numOfSuggestions int) (string, error) {
 	var output strings.Builder
 
 	suggestions := strings.Split(removeWhiteSpace(response), ",")
@@ -31,6 +31,7 @@ func ParseResponse(response string, numOfSuggestions int) (string, error) {
 		return "", errors.New("Unexpected response: " + response)
 	}
 
+	output.WriteString("\n")
 	for index, suggestion := range suggestions {
 		output.WriteString(fmt.Sprintf("\033[37m%v. \033[32m%s\n", index+1, suggestion))
 	}
