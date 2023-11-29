@@ -1,92 +1,42 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
+	"github.com/dotenv-org/godotenvvault"
+	"github.com/fabenan-f/naming/naming"
 	openai "github.com/sashabaranov/go-openai"
-	"github.com/urfave/cli/v2"
 )
 
 const (
 	FILENAME = "gtp_instruction_config.json"
 )
 
-func main() {
-	preparedMessages := ParseConfiguration(FILENAME)
-	var input input
-
-	app := &cli.App{
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:        "lang",
-				Aliases:     []string{"l"},
-				Usage:       "programming language",
-				Destination: &input.language,
-				Required:    true,
-			},
-			&cli.BoolFlag{
-				Name:        "mutable",
-				Aliases:     []string{"m"},
-				Usage:       "mutable",
-				Destination: &input.mutable,
-			},
-			&cli.StringFlag{
-				Name:        "symbol",
-				Aliases:     []string{"s"},
-				Usage:       "identifier for variable, function, class etc. names",
-				Destination: &input.symbol,
-				Required:    true,
-			},
-			&cli.StringFlag{
-				Name:        "type",
-				Aliases:     []string{"t"},
-				Usage:       "data type",
-				Destination: &input.dataType,
-			},
-			&cli.StringFlag{
-				Name:        "unit",
-				Aliases:     []string{"u"},
-				Usage:       "unit",
-				Destination: &input.unit,
-			},
-			&cli.StringFlag{
-				Name:        "description",
-				Aliases:     []string{"d"},
-				Usage:       "description",
-				Destination: &input.description,
-				Required:    true,
-			},
-			&cli.IntFlag{
-				Name:        "num",
-				Aliases:     []string{"n"},
-				Usage:       "number of suggestions",
-				Destination: &input.numOfSuggestions,
-				Required:    true,
-			},
-		},
-		Name:  "naming",
-		Usage: "give symbols a meaningful name and make thereby your code more maintainable",
-		Action: func(*cli.Context) error {
-			instruction := input.transformToInstruction()
-			message := openai.ChatCompletionMessage{
-				Role:    "user",
-				Content: instruction,
-			}
-			preparedMessages = append(preparedMessages, message)
-			response, err := askGtpForName(preparedMessages)
-			if err != nil {
-				log.Fatal(err)
-			}
-			parsedResponse, err := ParseResponse(response, input.numOfSuggestions)
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Println(parsedResponse)
-			return nil
-		},
+func getApiKey() string {
+	err := godotenvvault.Load()
+	if err != nil {
+		log.Print("Error loading .env file")
 	}
+	api_key := os.Getenv("OPENAI_API_KEY")
+	if api_key == "" {
+		log.Fatal("OPENAI_API_KEY is not exported")
+	}
+	return api_key
+}
+
+func main() {
+	apiKey := getApiKey()
+	client := openai.NewClient(apiKey)
+
+	preMessages := naming.ParseConfiguration(FILENAME)
+
+	gptClient := naming.GtpClient{
+		PreMessages: preMessages,
+		Client:      *client,
+	}
+
+	app := naming.NewCliApp(gptClient)
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
