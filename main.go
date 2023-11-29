@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	FILENAME = "gtp_instruction_config.json"
+	FILENAME = "./naming/gtp_instruction_config.json"
 )
 
 func getApiKey() string {

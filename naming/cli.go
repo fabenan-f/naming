@@ -62,6 +62,11 @@ func NewCliApp(client GtpClient) *cli.App {
 		Name:  "naming",
 		Usage: "give symbols a meaningful name and make thereby your code more maintainable",
 		Action: func(*cli.Context) error {
+			err := input.validateInput()
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			instruction := input.transformToInstruction()
 			message := openai.ChatCompletionMessage{
 				Role:    "user",
