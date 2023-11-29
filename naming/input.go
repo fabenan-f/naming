@@ -1,11 +1,12 @@
-package main
+package naming
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
 
-type input struct {
+type Input struct {
 	language         string
 	mutable          bool
 	symbol           string
@@ -15,7 +16,7 @@ type input struct {
 	numOfSuggestions int
 }
 
-func (input *input) transformToInstruction() string {
+func (input *Input) transformToInstruction() string {
 	var builder strings.Builder
 
 	fmt.Fprintf(&builder, "I have a %s application. Give me a name for a ", input.language)
@@ -44,4 +45,16 @@ func (input *input) transformToInstruction() string {
 		input.symbol, input.description, input.numOfSuggestions)
 
 	return builder.String()
+}
+
+func (input *Input) validateInput() error {
+	if input.numOfSuggestions > 10 {
+		return errors.New(
+			fmt.Sprintf(
+				`Maximal number of suggestion is 10, you wanted %v`,
+				input.numOfSuggestions,
+			),
+		)
+	}
+	return nil
 }
